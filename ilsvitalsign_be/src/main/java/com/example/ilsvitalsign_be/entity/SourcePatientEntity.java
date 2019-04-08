@@ -11,8 +11,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.BatchSize;
-
 @Entity
 @Table(name = "SOURCE_PATIENT")
 public class SourcePatientEntity {
@@ -22,7 +20,7 @@ public class SourcePatientEntity {
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "sourcePatientEntity", fetch = FetchType.LAZY)
 	@OrderBy("effectiveDateTime Desc")
-	List<ObservationEntity> observationEntity=new ArrayList<>();
+	List<ObservationEntity> observationEntity = new ArrayList<>();
 
 	public SourcePatientId getSourcePatientId() {
 		return sourcePatientId;

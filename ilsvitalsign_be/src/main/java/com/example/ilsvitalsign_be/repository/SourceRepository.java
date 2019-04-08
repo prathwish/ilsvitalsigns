@@ -7,6 +7,4 @@ import com.example.ilsvitalsign_be.entity.SourceEntity;
 public interface SourceRepository extends JpaRepository<SourceEntity, Integer> {
 
 	SourceEntity findBySourceName(String comment);
-
-
 }

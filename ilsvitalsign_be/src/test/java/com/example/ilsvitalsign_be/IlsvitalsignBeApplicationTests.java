@@ -25,8 +25,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.example.ilsvitalsign_be.controller.ilsvitalsignController;
 import com.example.ilsvitalsign_be.controller.ilsvitalsignExceptionHandler;
 import com.example.ilsvitalsign_be.dto.PatientEnrollmentDTO;
@@ -86,6 +84,8 @@ public class IlsvitalsignBeApplicationTests {
 	@InjectMocks
 	private ilsvitalsignController ilsvitalsignController;
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
 	@Test
 	private void testValidGePatientById() throws Exception {
 
@@ -143,16 +143,15 @@ public class IlsvitalsignBeApplicationTests {
 				.contentType(MediaType.APPLICATION_JSON_UTF8_VALUE).content(inputJson)).andExpect(status().isOk());
 
 	}
-	
+
 	@Test
 	private void testValidPatientEnrollment() throws Exception {
 
 		when(patientEnrollmentRepository.findByPatientId(any(Integer.class)))
 				.thenReturn((PatientEnrollmentEntity) TestDataProvider.patientEnrollmentEntity()[0][0]);
-		
+
 		this.mvc.perform(put("http://localhost:4000/api/dashboard/patient/enrollment/1")
 				.contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)).andExpect(status().isOk());
-
 	}
 
 	@Test

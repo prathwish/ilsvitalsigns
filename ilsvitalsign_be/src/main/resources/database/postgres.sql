@@ -1,10 +1,10 @@
 
 
 
+/*
 
 
-
-CREATE TABLE ilsvitalsigns_be.source (
+CREATE TABLE source (
   source_id SERIAL NOT NULL,
   source_name character varying(255),
   PRIMARY KEY (source_id)
@@ -12,7 +12,7 @@ CREATE TABLE ilsvitalsigns_be.source (
 
 
 
-CREATE TABLE ilsvitalsigns_be.value_quantity (
+CREATE TABLE value_quantity (
   value_quantity_id SERIAL NOT NULL ,
   code character varying(255) DEFAULT NULL,
   system_name character varying(255) DEFAULT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE ilsvitalsigns_be.value_quantity (
   PRIMARY KEY (value_quantity_id)
 ) ;
 
-CREATE TABLE ilsvitalsigns_be.code (
+CREATE TABLE code (
   code_id SERIAL NOT NULL ,
   text character varying(255) DEFAULT NULL,
   PRIMARY KEY (code_id)
@@ -29,85 +29,73 @@ CREATE TABLE ilsvitalsigns_be.code (
 
 
 
-CREATE TABLE ilsvitalsigns_be.resource (
-  resource_id bigint NOT NULL ,
+CREATE TABLE resource (
+  resource_id SERIAL NOT NULL ,
   device_reference character varying(255) DEFAULT NULL,
   effective_date_time character varying(255) DEFAULT NULL,
   id character varying(255) DEFAULT NULL,
   resource_type character varying(255) DEFAULT NULL,
   status character varying(255) DEFAULT NULL,
   subject_refference character varying(255) DEFAULT NULL,
-  code_code bigint DEFAULT NULL,
-  meta_code bigint DEFAULT NULL,
-  value_quantity_code bigint DEFAULT NULL,
+  code_code integer DEFAULT NULL,
+  meta_code integer DEFAULT NULL,
+  value_quantity_code integer DEFAULT NULL,
   PRIMARY KEY (resource_id),
   FOREIGN KEY 		(code_code) 
-	REFERENCES ilsvitalsigns_be.code (code_id) 
+	REFERENCES code (code_id) 
    	ON DELETE RESTRICT
     	ON UPDATE RESTRICT,
 FOREIGN KEY 		(value_quantity_code) 
-  REFERENCES ilsvitalsigns_be.value_quantity (value_quantity_id) 
+  REFERENCES value_quantity (value_quantity_id) 
   ON DELETE RESTRICT
     	ON UPDATE RESTRICT
 );
 
 
-CREATE TABLE ilsvitalsigns_be.category (
-  category_id bigint NOT NULL ,
-  resource_id bigint DEFAULT NULL,
+CREATE TABLE category (
+  category_id SERIAL NOT NULL ,
+  resource_id integer NOT NULL,
   PRIMARY KEY (category_id),
   FOREIGN KEY 		(resource_id) 
-  REFERENCES ilsvitalsigns_be.resource (resource_id) 
+  REFERENCES resource (resource_id) 
   ON DELETE RESTRICT
     	ON UPDATE RESTRICT
 );
 
+*/
 
 
-
-CREATE TABLE ilsvitalsigns_be.code_value (
-  code_value_id bigint NOT NULL ,
+CREATE TABLE code_value (
+  code_value_id SERIAL NOT NULL ,
   code varchar(20) NOT NULL,
   display character varying(255) NOT NULL,
-  system_name character varying(255) DEFAULT NULL,
-  category_id bigint DEFAULT NULL,
-  code_id bigint DEFAULT NULL,
-  PRIMARY KEY (code_value_id),
-   FOREIGN KEY 		(category_id) 
-  REFERENCES ilsvitalsigns_be.category (category_id) 
-  ON DELETE RESTRICT
-    	ON UPDATE RESTRICT,
-  FOREIGN KEY 		(code_id)
-  REFERENCES ilsvitalsigns_be.code (code_id) 
-  ON DELETE RESTRICT
-    	ON UPDATE RESTRICT
-
+  PRIMARY KEY (code_value_id)
 );
 
-
-CREATE TABLE ilsvitalsigns_be.component (
-  component_id bigint NOT NULL ,
-  code_code bigint DEFAULT NULL,
-  resource_id bigint DEFAULT NULL,
-  value_quantity_code bigint DEFAULT NULL,
+/*
+CREATE TABLE component (
+  component_id SERIAL NOT NULL ,
+  code_code integer DEFAULT NULL,
+  resource_id integer DEFAULT NULL,
+  value_quantity_code integer DEFAULT NULL,
   PRIMARY KEY (component_id),
     FOREIGN KEY 		(code_code)
-  REFERENCES ilsvitalsigns_be.code (code_id) 
+  REFERENCES code (code_id) 
   ON DELETE RESTRICT
     	ON UPDATE RESTRICT,
  FOREIGN KEY 		(resource_id)
-  REFERENCES ilsvitalsigns_be.resource (resource_id) 
+  REFERENCES resource (resource_id) 
   ON DELETE RESTRICT
     	ON UPDATE RESTRICT,
   FOREIGN KEY 		(value_quantity_code)
-  REFERENCES ilsvitalsigns_be.value_quantity (value_quantity_id)  
+  REFERENCES value_quantity (value_quantity_id)  
   ON DELETE RESTRICT
     	ON UPDATE RESTRICT
 );
 
-
-CREATE TABLE ilsvitalsigns_be.patient_enrollment (
-  patient_id bigint NOT NULL ,
+*/
+CREATE TABLE patient_enrollment (
+  patient_id SERIAL NOT NULL ,
   ssn_number character varying(255) DEFAULT NULL,
   alt_pid character varying(255) DEFAULT NULL,
   audit_timestamp timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -154,16 +142,70 @@ CREATE TABLE ilsvitalsigns_be.patient_enrollment (
   type character varying(255) DEFAULT NULL,
   veterans_militar_ystatus character varying(255) DEFAULT NULL,
   zipcode character varying(255) DEFAULT NULL,
+   cdr_id character varying(255) DEFAULT NULL,
   PRIMARY KEY (patient_id)
 );
 
 
-CREATE TABLE ilsvitalsigns_be.source_observation (
-  source_id bigint NOT NULL,
-  patient_id bigint NOT NULL,
+			
+
+			
+CREATE TABLE source (
+			  source_id SERIAL NOT NULL ,
+			  source_name character varying(255) NOT NULL,
+			  PRIMARY KEY (source_id)
+			);
+			
+CREATE TABLE source_patient (
+			  source_id SERIAL NOT NULL ,
+			  patient_id SERIAL NOT NULL ,
+			  FOREIGN KEY (source_id) REFERENCES source (source_id)
+			   ON DELETE RESTRICT
+			    	ON UPDATE RESTRICT,
+			  FOREIGN KEY (patient_id) REFERENCES patient_enrollment (patient_id)
+			   ON DELETE RESTRICT
+			    	ON UPDATE RESTRICT,
+			  PRIMARY KEY (patient_id,source_id)
+			);
+			
+
+	CREATE TABLE observation (
+			  observation_id SERIAL NOT NULL ,
+			  category character varying(255) NOT NULL,
+			  subcategory_type character varying(255) NOT NULL,
+			  subcategory_code character varying(255) NOT NULL,
+			  cdrid character varying(255) NOT NULL,
+			  effectivedate_time character varying(255) NOT NULL,
+			  patient_id integer NOT NULL,
+			  source_id integer NOT NULL,
+			  FOREIGN KEY (patient_id, source_id) REFERENCES source_patient (patient_id, source_id)
+			  ON DELETE RESTRICT
+			    	ON UPDATE RESTRICT,
+			  PRIMARY KEY (observation_id)
+			);
+			
+CREATE TABLE observation_value (
+			  observation_value_id SERIAL NOT NULL ,
+			  type character varying(255) NOT NULL,
+			  code character varying(255) NOT NULL,
+			  unit character varying(255) NOT NULL,
+			  value character varying(255) NOT NULL,
+			  observation_id integer NOT NULL,
+			  FOREIGN KEY 		(observation_id)
+			  REFERENCES observation (observation_id) 
+			  ON DELETE RESTRICT
+			    	ON UPDATE RESTRICT,
+			  PRIMARY KEY (observation_value_id)
+			);
+
+/*
+
+CREATE TABLE source_observation (
+  source_id SERIAL NOT NULL,
+  patient_id SERIAL NOT NULL,
   PRIMARY KEY (patient_id,source_id),
    FOREIGN KEY 		(source_id)
-  REFERENCES ilsvitalsigns_be.source (source_id)  
+  REFERENCES source (source_id)  
   ON DELETE RESTRICT
     	ON UPDATE RESTRICT
 );
@@ -171,41 +213,33 @@ CREATE TABLE ilsvitalsigns_be.source_observation (
 
 
 
-CREATE TABLE ilsvitalsigns_be.entry (
-  entry_id bigint NOT NULL ,
+CREATE TABLE entry (
+  entry_id SERIAL NOT NULL ,
   audit_timestamp timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   full_url character varying(255) DEFAULT NULL,
   mode character varying(255) DEFAULT NULL,
-  patient_id bigint DEFAULT NULL,
-  observation_id bigint DEFAULT NULL,
-  resource_code bigint DEFAULT NULL,
-  source_id bigint DEFAULT NULL,
+  patient_id integer DEFAULT NULL,
+  observation_id integer DEFAULT NULL,
+  resource_code integer DEFAULT NULL,
+  source_id integer DEFAULT NULL,
   PRIMARY KEY (entry_id),
    FOREIGN KEY 		(patient_id)
-  REFERENCES ilsvitalsigns_be.patient_enrollment (patient_id)  
+  REFERENCES patient_enrollment (patient_id)  
   ON DELETE RESTRICT
     	ON UPDATE RESTRICT,
  FOREIGN KEY 		(resource_code)
-  REFERENCES ilsvitalsigns_be.resource (resource_id)  
+  REFERENCES resource (resource_id)  
   ON DELETE RESTRICT
     	ON UPDATE RESTRICT,
 FOREIGN KEY 		(source_id)
-  REFERENCES ilsvitalsigns_be.source (source_id)  
+  REFERENCES source (source_id)  
   ON DELETE RESTRICT
     	ON UPDATE RESTRICT
 );
 
+*/
 
-INSERT INTO ilsvitalsigns_be.code_value (code_value_id, code, display) VALUES ('1', 'MR', 'Medical Record Number');
-INSERT INTO ilsvitalsigns_be.code_value (code_value_id, code, display) VALUES ('2', 'SB', 'Social Security Number');
-INSERT INTO ilsvitalsigns_be.code_value (code_value_id, code, display) VALUES ('3', 'S', 'Never Married');
-INSERT INTO ilsvitalsigns_be.code_value (code_value_id, code, display) VALUES ('4', 'it', 'Italian');
-
-
-
-
-
-
-
-
-
+INSERT INTO code_value (code, display) VALUES ('MR', 'Medical Record Number');
+INSERT INTO code_value (code, display) VALUES ('SB', 'Social Security Number');
+INSERT INTO code_value ( code, display) VALUES ('S', 'Never Married');
+INSERT INTO code_value ( code, display) VALUES ('it', 'Italian');

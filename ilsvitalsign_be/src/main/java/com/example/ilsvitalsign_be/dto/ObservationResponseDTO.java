@@ -5,6 +5,10 @@ import java.util.List;
 
 public class ObservationResponseDTO implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Integer observationId;
 	private String sourceName;
 	private String category;
