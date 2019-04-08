@@ -291,44 +291,42 @@ public class IlsvitalsignServiceImpl implements IlsvitalsignService {
 	public List<SourceObservationDTO> getAllObservation(Integer patientId) {
 
 		PatientEnrollmentEntity patientEnrollmentEntity = patientEnrollmentRepository.findByPatientId(patientId);
+		List<SourcePatientEntity> sourcePatientEntities = patientEnrollmentEntity.getSourcePatientEntity();
 
-		if (Objects.nonNull(patientEnrollmentEntity)) {
-
-			List<SourcePatientEntity> sourcePatientEntities = patientEnrollmentEntity.getSourcePatientEntity();
+		if (Objects.nonNull(patientEnrollmentEntity) && Objects.nonNull(sourcePatientEntities)
+				&& !sourcePatientEntities.isEmpty()) {
 
 			// sourcePatientRepository.findBySourcePatientId_PatientEnrollmentEntity_PatientId(patientId);
 
 			List<SourceObservationDTO> sourceObservationDTOs = new ArrayList<>();
 
-			if (Objects.nonNull(sourcePatientEntities) && !sourcePatientEntities.isEmpty()) {
-				sourcePatientEntities.forEach(sp -> {
-					List<ObservationEntity> observations = observationRepository
-							.findTop700BySourcePatientEntity_SourcePatientId_PatientEnrollmentEntity_PatientIdAndSourcePatientEntity_SourcePatientId_Source_SourceIdOrderByEffectiveDateTimeDesc(
-									patientId, sp.getSourcePatientId().getSource().getSourceId());
-					SourceObservationDTO sourceObservationDTO = new SourceObservationDTO();
-					sourceObservationDTO.setSourceName(sp.getSourcePatientId().getSource().getSourceName());
-					List<ObservationResponseDTO> observationResponseDTOs = new ArrayList<>();
-					observations.forEach(observ -> {
-						ObservationResponseDTO observationResponseDTO = populatePostObservationDTOTest(observ);
-						observationResponseDTOs.add(observationResponseDTO);
+			sourcePatientEntities.forEach(sp -> {
+				List<ObservationEntity> observations = observationRepository
+						.findTop700BySourcePatientEntity_SourcePatientId_PatientEnrollmentEntity_PatientIdAndSourcePatientEntity_SourcePatientId_Source_SourceIdOrderByEffectiveDateTimeDesc(
+								patientId, sp.getSourcePatientId().getSource().getSourceId());
+				SourceObservationDTO sourceObservationDTO = new SourceObservationDTO();
+				sourceObservationDTO.setSourceName(sp.getSourcePatientId().getSource().getSourceName());
+				List<ObservationResponseDTO> observationResponseDTOs = new ArrayList<>();
+				observations.forEach(observ -> {
+					ObservationResponseDTO observationResponseDTO = populatePostObservationDTO(observ);
+					observationResponseDTOs.add(observationResponseDTO);
 
-					});
-					sourceObservationDTO.setObservationResponseDTO(observationResponseDTOs);
-					sourceObservationDTOs.add(sourceObservationDTO);
 				});
-				return sourceObservationDTOs;
-			}
+				sourceObservationDTO.setObservationResponseDTO(observationResponseDTOs);
+				sourceObservationDTOs.add(sourceObservationDTO);
+			});
+			return sourceObservationDTOs;
 		}
 
 		return null;
 	}
 
 	@Override
-	public ObservationEntity createObservationTest(Resource resource) {
-		return populatePatientObservationEntityTest(resource);
+	public ObservationEntity createObservation(Resource resource) {
+		return populatePatientObservationEntity(resource);
 	}
 
-	private ObservationEntity populatePatientObservationEntityTest(Resource resource) {
+	private ObservationEntity populatePatientObservationEntity(Resource resource) {
 		ObservationEntity observationEntity = null;
 		PatientEnrollmentEntity patientEnrollmentEntity = getPatientId(resource.getSubject().getReference());
 		SourceEntity source = getOrCreateSource(resource.getComment());
@@ -337,7 +335,6 @@ public class IlsvitalsignServiceImpl implements IlsvitalsignService {
 			SourcePatientEntity sourcePatientEntity = sourcePatientRepository
 					.findBySourcePatientId_PatientEnrollmentEntity_PatientIdAndSourcePatientId_Source_SourceId(
 							patientEnrollmentEntity.getPatientId(), source.getSourceId());
-			;
 			if (Objects.isNull(sourcePatientEntity)) {
 				sourcePatientEntity = new SourcePatientEntity();
 				SourcePatientId sourcePatientId = new SourcePatientId();
@@ -431,7 +428,7 @@ public class IlsvitalsignServiceImpl implements IlsvitalsignService {
 	}
 
 	@Override
-	public ObservationResponseDTO populatePostObservationDTOTest(ObservationEntity observationEntity) {
+	public ObservationResponseDTO populatePostObservationDTO(ObservationEntity observationEntity) {
 		ObservationResponseDTO observationResponseDTO = new ObservationResponseDTO();
 		observationResponseDTO.setCategory(observationEntity.getCategory());
 		observationResponseDTO.setCdrId(observationEntity.getCdrId());

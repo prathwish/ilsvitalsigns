@@ -30,9 +30,9 @@ public interface IlsvitalsignService {
 
 	List<SourceObservationDTO> getAllObservation(Integer id);
 
-	ObservationResponseDTO populatePostObservationDTOTest(ObservationEntity observationEntity);
+	ObservationResponseDTO populatePostObservationDTO(ObservationEntity observationEntity);
 
-	ObservationEntity createObservationTest(Resource resource);
+	ObservationEntity createObservation(Resource resource);
 
 		
 	}

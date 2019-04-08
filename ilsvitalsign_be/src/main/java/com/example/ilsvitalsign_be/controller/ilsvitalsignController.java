@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -74,8 +75,8 @@ public class ilsvitalsignController {
 		return new ResponseEntity<>(populateNewPatientResponse("Record Added Successfully"), HttpStatus.OK);
 	}
 
-	@PostMapping(value = "/dashboard/patient/enrollment/{pid}")
-	public ResponseEntity<NewPatientResponse> postPatientToCDR(@PathVariable("pid") Integer pid) {
+	@PutMapping(value = "/dashboard/patient/enrollment/{pid}")
+	public ResponseEntity<NewPatientResponse> patientEnrollment(@PathVariable("pid") Integer pid) {
 		logger.info("patient enrollment by pid:: " + pid);
 		ilsvitalsignService.getPatientById(pid);
 		return new ResponseEntity<>(populateNewPatientResponse("CDR records created successfully"), HttpStatus.OK);
@@ -90,9 +91,9 @@ public class ilsvitalsignController {
 		logger.info("observation in jsin format::" + gson.toJson(resource));
 		ObservationResponseDTO resp = null;
 		if (Objects.nonNull(resource)) {
-			ObservationEntity observationEntity = ilsvitalsignService.createObservationTest(resource);
+			ObservationEntity observationEntity = ilsvitalsignService.createObservation(resource);
 			logger.info("entity saved successfully done");
-			resp = ilsvitalsignService.populatePostObservationDTOTest(observationEntity);
+			resp = ilsvitalsignService.populatePostObservationDTO(observationEntity);
 			logger.info("ObservationResponseDTO json::" + gson.toJson(resp));
 
 			brokerMessagingTemplate.convertAndSend("/topic/greetings",
@@ -119,7 +120,7 @@ public class ilsvitalsignController {
 	}
 
 	@GetMapping(value = "/dashboard/patient/observations/{patientId}")
-	public ResponseEntity<List<SourceObservationDTO>> getObservation(@PathVariable Integer patientId) {
+	public ResponseEntity<List<SourceObservationDTO>> getObservationsByPatientId(@PathVariable Integer patientId) {
 		List<SourceObservationDTO> sourceObservationDTO = ilsvitalsignService.getAllObservation(patientId);
 		return new ResponseEntity<>(sourceObservationDTO, HttpStatus.OK);
 	}
